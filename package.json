@@ -1,5 +1,6 @@
 {
   "name": "generic-table",
+  "homepage": "https://arsavag.github.io/GenericTable",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,11 +8,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "effector": "^23.4.4",
     "effector-react": "^23.3.0",
+    "gh-pages": "^6.3.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "styled-components": "^6.1.19"
