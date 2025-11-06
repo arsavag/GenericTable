@@ -174,3 +174,22 @@ export const PageSizeSelect = styled.select`
     border-color: #4a90e2;
   }
 `;
+
+export const DeleteButton = styled.button`
+  padding: 6px 12px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background: #c82333;
+  }
+  
+  &:active {
+    background: #bd2130;
+  }
+`;

@@ -1,7 +1,9 @@
 import { createStore, createEvent } from 'effector';
 
-export type TableData = Record<string, unknown>[];
+export type TableDataItem = Record<string, unknown>;
+export type TableData = TableDataItem[];
 export type SortDirection = 'asc' | 'desc' | null;
+
 export interface TableState {
   data: TableData;
   filteredData: TableData;
@@ -19,7 +21,7 @@ const initialState: TableState = {
   sortColumn: null,
   sortDirection: null,
   currentPage: 1,
-  pageSize: 2,
+  pageSize: 10,
 };
 
 export const $tableState = createStore<TableState>(initialState);
@@ -28,6 +30,7 @@ export const setPage = createEvent<number>();
 export const setData = createEvent<TableData>();
 export const setPageSize = createEvent<number>();
 export const setSearchQuery = createEvent<string>();
+export const deleteRow = createEvent<TableDataItem>();
 export const reorderRows = createEvent<{ fromIndex: number; toIndex: number }>();
 export const setSort = createEvent<{ column: string; direction: SortDirection }>();
 
@@ -134,6 +137,20 @@ $tableState
       ...state,
       filteredData: newFilteredData,
       data: newFilteredData,
+    };
+  })
+  .on(deleteRow, (state, rowToDelete) => {
+    const rowToDeleteStr = JSON.stringify(rowToDelete);
+    const newData = state.data.filter((row) => JSON.stringify(row) !== rowToDeleteStr);
+    const filtered = searchData(newData, state.searchQuery);
+    const sorted = state.sortColumn && state.sortDirection
+      ? sortData(filtered, state.sortColumn, state.sortDirection)
+      : filtered;
+    
+    return {
+      ...state,
+      data: newData,
+      filteredData: sorted,
     };
   });
 

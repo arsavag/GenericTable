@@ -4,6 +4,7 @@ import {
   setData,
   setPage,
   setSort,
+  deleteRow,
   reorderRows,
   setPageSize,
   setSearchQuery,
@@ -16,24 +17,25 @@ import {
   type SortDirection,
 } from '../../store/table.model';
 import {
+  TableRow,
+  TableBody,
+  TableCell,
+  ActionCell,
+  EmptyState,
   StyledTable,
   TableHeader,
-  TableHeaderCell,
-  TableHeaderRow,
-  TableBody,
-  TableRow,
-  TableCell,
-  // ActionCell,
-  EmptyState,
-  PaginationContainer,
-  PaginationControls,
-  PaginationButton,
-  TableContainer,
-  SortIndicator,
-  DragHandleItem,
-  ControlsContainer,
   SearchInput,
+  DeleteButton,
+  SortIndicator,
+  TableHeaderRow,
+  TableContainer,
+  DragHandleItem,
   PageSizeSelect,
+  TableHeaderCell,
+  PaginationButton,
+  ControlsContainer,
+  PaginationControls,
+  PaginationContainer,
 } from './styles';
 
 interface ITableProps {
@@ -154,6 +156,14 @@ export default function Table({ data }: ITableProps) {
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPageSize(Number(e.target.value));
   };
+
+  const handleDeleteRow = (index: number) => {
+    const row = paginatedData[index];
+    if (row) {
+      deleteRow(row);
+    }
+  };
+
   useEffect(() => {
     setData(data);
   }, [data]);
@@ -225,6 +235,11 @@ export default function Table({ data }: ITableProps) {
                   {columns.map((column) => (
                     <TableCell key={column}>{formatCellValue(row[column])}</TableCell>
                   ))}
+                  <ActionCell>
+                    <DeleteButton onClick={() => handleDeleteRow(index)}>
+                      Delete
+                    </DeleteButton>
+                  </ActionCell>
                 </TableRow>
               ))
             )}
