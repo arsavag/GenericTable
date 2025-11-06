@@ -31,3 +31,31 @@ export const TableHeaderCell = styled.th`
   &:active {
   }
 `;
+
+export const TableBody = styled.tbody``;
+
+export const TableRow = styled.tr`
+  border-bottom: 1px solid #dee2e6;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background: #f8f9fa;
+  }
+`;
+
+export const TableCell = styled.td`
+  padding: 12px 16px;
+  color: #212529;
+  font-size: 14px;
+`;
+
+export const ActionCell = styled(TableCell)`
+  text-align: right;
+`;
+
+export const EmptyState = styled.div`
+  padding: 40px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 16px;
+`;

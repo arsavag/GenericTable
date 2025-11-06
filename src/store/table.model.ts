@@ -1,19 +1,36 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { createStore, createEvent } from 'effector';
 
 export type TableData = Record<string, unknown>[];
-
+export type SortDirection = 'asc' | 'desc' | null;
 export interface TableState {
     data: TableData;
+    currentPage?: number;
+    pageSize?: number;
+    filteredData?: TableData;
+    searchQuery?: string;
+    sortColumn: string | null;
+    sortDirection: SortDirection;
 }
 
 export const initialState : TableState = {
     data: [],
+    currentPage: 1,
+    pageSize: 10,
+    filteredData: [],
+    searchQuery: '',
+    sortColumn: null,
+    sortDirection: null,  
 };
 
 export const $tableState = createStore<TableState>(initialState);
 
 
 export const setData = createEvent<TableData>();
+export const setSearchQuery = createEvent<string>();
+export const setSort = createEvent<{ column: string; direction: SortDirection }>();
+export const setPage = createEvent<number>();
+export const setPageSize = createEvent<number>();
 
 export const getAllKeys = (data: TableData): string[] => {
     const keys = new Set<string>();
@@ -23,10 +40,111 @@ export const getAllKeys = (data: TableData): string[] => {
     return Array.from(keys);
 };
 
-export const $columns = $tableState.map(state => state.data.length > 0 ? getAllKeys(state.data) : []);
+const searchData = (data: TableData, query: string): TableData => {
+  if (!query.trim()) return data;
+  const queryLower = query.toLowerCase();
+  const keys = getAllKeys(data);
+  
+  return data.filter((row) =>
+    keys.some((key) => {
+      const value = row[key];
+      if (value === null || value === undefined) return false;
+      return String(value).toLowerCase().includes(queryLower);
+    })
+  );
+};
+const sortData = (data: TableData, column: string, direction: SortDirection): TableData => {
+  if (!direction) return data;
+  
+  return [...data].sort((a, b) => {
+    const aVal = a[column];
+    const bVal = b[column];
+    
+    if (aVal === null || aVal === undefined) return direction === 'asc' ? 1 : -1;
+    if (bVal === null || bVal === undefined) return direction === 'asc' ? -1 : 1;
+    
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return direction === 'asc' ? aVal - bVal : bVal - aVal;
+    }
+    
+    const aStr = String(aVal).toLowerCase();
+    const bStr = String(bVal).toLowerCase();
+    
+    if (aStr < bStr) return direction === 'asc' ? -1 : 1;
+    if (aStr > bStr) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+};
 
 $tableState
-    .on(setData, (state, data) => ({
-        ...state,
-        data,
-    }));
+  .on(setData, (state, data) => {
+      // @ts-expect-error
+    const filtered = searchData(data, state.searchQuery);
+    const sorted = state.sortColumn && state.sortDirection
+      ? sortData(filtered, state.sortColumn, state.sortDirection)
+      : filtered;
+    
+    return {
+      ...state,
+      data,
+      filteredData: sorted,
+      currentPage: 1,
+    };
+  })
+  .on(setSearchQuery, (state, searchQuery) => {
+    const filtered = searchData(state.data, searchQuery);
+    const sorted = state.sortColumn && state.sortDirection
+      ? sortData(filtered, state.sortColumn, state.sortDirection)
+      : filtered;
+    
+    return {
+      ...state,
+      searchQuery,
+      filteredData: sorted,
+      currentPage: 1,
+    };
+  })
+  .on(setSort, (state, { column, direction }) => {
+    const sorted = direction
+      // @ts-expect-error
+      ? sortData(state.filteredData, column, direction)
+      : state.filteredData;
+    
+    return {
+      ...state,
+      sortColumn: direction ? column : null,
+      sortDirection: direction,
+      filteredData: sorted,
+      currentPage: 1,
+    };
+  })
+  .on(setPage, (state, currentPage) => ({
+    ...state,
+    currentPage,
+  }))
+  .on(setPageSize, (state, pageSize) => ({
+    ...state,
+    pageSize,
+    currentPage: 1,
+  }))
+
+export const $columns = $tableState.map(state => state.data.length > 0 ? getAllKeys(state.data) : []);
+
+export const $paginatedData = $tableState.map((state) => {
+      // @ts-expect-error
+  const start = (state.currentPage - 1) * state.pageSize;
+      // @ts-expect-error
+  const end = start + state.pageSize;
+      // @ts-expect-error
+  return state.filteredData.slice(start, end);
+});
+
+export const $totalPages = $tableState.map((state) =>
+      // @ts-expect-error
+
+  Math.ceil(state.filteredData.length / state.pageSize) || 1
+);
+      // @ts-expect-error
+
+export const $totalItems = $tableState.map((state) => state.filteredData.length);
+
