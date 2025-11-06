@@ -19,7 +19,7 @@ const initialState: TableState = {
   sortColumn: null,
   sortDirection: null,
   currentPage: 1,
-  pageSize: 10,
+  pageSize: 2,
 };
 
 export const $tableState = createStore<TableState>(initialState);

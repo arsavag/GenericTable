@@ -14,6 +14,13 @@ const sampleData1 = [
   { id: 12, name: 'Jack Black', email: 'jack@example.com', age: 36, city: 'Jacksonville' },
 ];
 
+// const sampleData1 = [
+//   { product: 'Laptop', price: 999.99, stock: 15, name: 'Electronics' },
+//   { product: 'Mouse', price: 29.99, stock: 100, category: 'Accessories' },
+//   { product: 'Keyboard', price: 79.99, stock: 50, category: 'Accessories' },
+//   { product: 'Monitor', price: 299.99, stock: 25, category: 'Electronics' },
+// ];
+
 function App() {
   return (
     <>

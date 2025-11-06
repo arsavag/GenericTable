@@ -5,11 +5,12 @@ import {
   setPage,
   setSort,
   reorderRows,
+  setSearchQuery,
   $columns,
-  $paginatedData,
   $totalItems,
   $tableState,
   $totalPages,
+  $paginatedData,
   type TableData,
   type SortDirection,
 } from '../../store/table.model';
@@ -29,6 +30,8 @@ import {
   TableContainer,
   SortIndicator,
   DragHandleItem,
+  ControlsContainer,
+  SearchInput,
 } from './styles';
 
 interface ITableProps {
@@ -46,8 +49,9 @@ export default function Table({ data }: ITableProps) {
   const dragItemRef = useRef<number | null>(null);
 
   const {
-    currentPage,
     sortColumn,
+    searchQuery,
+    currentPage,
     sortDirection,
   } = useUnit($tableState); 
   
@@ -140,6 +144,10 @@ export default function Table({ data }: ITableProps) {
     setDragState({ draggedIndex: null, draggedOverIndex: null });
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   useEffect(() => {
     setData(data);
   }, [data]);
@@ -154,6 +162,14 @@ export default function Table({ data }: ITableProps) {
 
   return (
     <TableContainer>
+      <ControlsContainer>
+        <SearchInput
+          type="text"
+          placeholder="Search across all columns..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+      </ControlsContainer>
       <StyledTable>
         <TableHeader>
           <TableHeaderRow>

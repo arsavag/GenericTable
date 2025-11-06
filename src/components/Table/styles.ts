@@ -1,10 +1,33 @@
 import styled from 'styled-components';
 
 export const TableContainer = styled.div`
-  width: 100%;
-  margin: 20px 0;
+  width: 80%;
+  margin: 20px auto;
+  overflow-x: auto;
 `;
 
+export const ControlsContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+`;
+
+export const SearchInput = styled.input`
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  flex: 1;
+  min-width: 200px;
+  
+  &:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+  }
+`;
 
 export const StyledTable = styled.table`
   width: 100%;
