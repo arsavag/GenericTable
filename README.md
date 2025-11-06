@@ -1,73 +1,144 @@
-# React + TypeScript + Vite
+# Generic Table Component
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A flexible and feature-rich React table component built with TypeScript, Effector state management, and styled-components. The table supports dynamic data structures, sorting, searching, pagination, and row reordering.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Dynamic column generation from any data structure
+- Global search across all columns
+- Sortable columns (click column headers)
+- Pagination with configurable page size
+- Drag-and-drop row reordering
+- Row deletion
+- Responsive design with horizontal scrolling
+- Styled with styled-components
+- Full TypeScript support
+- Example datasets included
 
-## React Compiler
+## Quick Start
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
 
-## Expanding the ESLint configuration
+- Node.js 16+ 
+- npm 7+ (comes with Node.js)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Installation
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone the repository:
+```bash
+git clone https://github.com/arsavag/GenericTable.git
+cd GenericTable
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Install dependencies:
+```bash
+npm install
 ```
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+4. Open your browser to the URL shown in the terminal (typically http://localhost:5173)
+
+## Architecture
+
+### Tech Stack
+
+- **React 19** - UI framework
+- **TypeScript** - Type safety and developer experience
+- **Effector** - State management
+- **styled-components** - Component styling
+- **Vite** - Build tool and dev server
+
+### Project Structure
+
+```
+src/
+  ├── components/
+  │   └── Table/
+  │       ├── index.tsx    # Main table component
+  │       └── styles.ts    # Styled components
+  │
+  ├── store/
+  │   └── table.model.ts   # Effector state management
+  │
+  ├── App.tsx             # Example usage & data structures
+  └── main.tsx           # App entry point
+```
+
+### Key Design Decisions
+
+1. **Dynamic Column Generation**
+   - Columns are automatically generated from data keys
+   - Supports nested objects and inconsistent data structures
+   - Uses JSON.stringify for complex values
+
+2. **State Management with Effector**
+   - Centralized state management for table operations
+   - Separate stores for different table aspects (sorting, pagination, etc.)
+   - Efficient updates with fine-grained reactivity
+
+3. **Styling Approach**
+   - Styled-components for dynamic, prop-based styling
+   - Responsive design with mobile considerations
+   - Consistent theme variables for colors and spacing
+
+4. **Type Safety**
+   - Generic types for table data
+   - Runtime type checking for dynamic data
+   - Full TypeScript coverage
+
+## Usage
+
+```tsx
+import Table from './components/Table';
+
+// Your data can have any structure
+const data = [
+  { id: 1, name: 'John', age: 30 },
+  { id: 2, name: 'Jane', age: 25 },
+];
+
+function App() {
+  return <Table data={data} />;
+}
+```
+
+### Supported Data Structures
+
+The table handles various data structures:
+
+1. **Flat Objects**
+```typescript
+{ id: 1, name: 'John', email: 'john@example.com' }
+```
+
+2. **Mixed/Inconsistent Keys**
+```typescript
+[
+  { id: 1, name: 'One', value: 10 },
+  { uid: 'x2', title: 'Two', amount: 20 }
+]
+```
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The production build will be in the `dist/` directory.
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/AmazingFeature`
+3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
+4. Push to the branch: `git push origin feature/AmazingFeature`
+5. Open a Pull Request
+
+## License
+
+This project is MIT licensed.
