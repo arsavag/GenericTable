@@ -131,6 +131,34 @@ npm run build
 
 The production build will be in the `dist/` directory.
 
+## Testing
+
+This project uses **Jest** with **React Testing Library**.
+
+### Commands
+
+```bash
+# run tests once
+npm test
+
+# watch mode
+npm run test:watch
+``
+
+### Test Location
+
+- Tests live under `src/__tests__/`
+- Example: `src/__tests__/Table.test.tsx`
+
+### Notes
+
+- JSDOM environment is configured via `jest.config.ts`
+- Setup file: `src/setupTests.ts` (adds `@testing-library/jest-dom` matchers)
+
+```bash
+npm test
+```
+
 ## Contributing
 
 1. Fork the repository
