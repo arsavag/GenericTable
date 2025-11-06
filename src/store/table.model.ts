@@ -24,12 +24,12 @@ const initialState: TableState = {
 
 export const $tableState = createStore<TableState>(initialState);
 
-
-export const setData = createEvent<TableData>();
-export const setSearchQuery = createEvent<string>();
-export const setSort = createEvent<{ column: string; direction: SortDirection }>();
 export const setPage = createEvent<number>();
+export const setData = createEvent<TableData>();
 export const setPageSize = createEvent<number>();
+export const setSearchQuery = createEvent<string>();
+export const reorderRows = createEvent<{ fromIndex: number; toIndex: number }>();
+export const setSort = createEvent<{ column: string; direction: SortDirection }>();
 
 export const getAllKeys = (data: TableData): string[] => {
     const keys = new Set<string>();
@@ -124,6 +124,18 @@ $tableState
     pageSize,
     currentPage: 1,
   }))
+  .on(reorderRows, (state, { fromIndex, toIndex }) => {
+    const pageStart = (state.currentPage - 1) * state.pageSize;
+    const newFilteredData = [...state.filteredData];
+    const [movedItem] = newFilteredData.splice(pageStart + fromIndex, 1);
+    newFilteredData.splice(pageStart + toIndex, 0, movedItem);
+    
+    return {
+      ...state,
+      filteredData: newFilteredData,
+      data: newFilteredData,
+    };
+  });
 
 export const $columns = $tableState.map(state => state.data.length > 0 ? getAllKeys(state.data) : []);
 
@@ -138,4 +150,3 @@ export const $totalPages = $tableState.map((state) =>
 );
 
 export const $totalItems = $tableState.map((state) => state.filteredData.length);
-

@@ -40,13 +40,27 @@ export const TableHeaderCell = styled.th`
 
 export const TableBody = styled.tbody``;
 
-export const TableRow = styled.tr`
+export const TableRow = styled.tr<{ $isDragging?: boolean; $isDraggedOver?: boolean }>`
   border-bottom: 1px solid #dee2e6;
   transition: background-color 0.2s;
   
   &:hover {
     background: #f8f9fa;
   }
+  
+  ${(props) =>
+    props.$isDragging &&
+    `
+    opacity: 0.5;
+    cursor: grabbing;
+  `}
+  
+  ${(props) =>
+    props.$isDraggedOver &&
+    `
+    background: #e3f2fd;
+    border-top: 2px solid #4a90e2;
+  `}
 `;
 
 export const TableCell = styled.td`
@@ -68,16 +82,11 @@ export const EmptyState = styled.div`
 
 export const PaginationContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 16px;
   flex-wrap: wrap;
   gap: 12px;
-`;
-
-export const PaginationInfo = styled.div`
-  color: #6c757d;
-  font-size: 14px;
 `;
 
 export const PaginationControls = styled.div`
@@ -105,3 +114,27 @@ export const PaginationButton = styled.button<{ $disabled?: boolean; $active?: b
     opacity: 0.5;
   }
 `;
+
+export const SortIndicator = styled.span`
+  margin-left: 8px;
+  font-size: 12px;
+  color: #4a90e2;
+`;
+
+
+export const DragHandleItem = styled.div`
+  cursor: grab;
+  padding: 4px;
+  color: #6c757d;
+  display: inline-flex;
+  align-items: center;
+  
+  &:active {
+    cursor: grabbing;
+  }
+  
+  &:hover {
+    color: #495057;
+  }
+`;
+

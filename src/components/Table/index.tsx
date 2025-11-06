@@ -1,13 +1,17 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useUnit } from 'effector-react';
 import {
   setData,
+  setPage,
+  setSort,
+  reorderRows,
   $columns,
   $paginatedData,
   $totalItems,
   $tableState,
   $totalPages,
+  type TableData,
+  type SortDirection,
 } from '../../store/table.model';
 import {
   StyledTable,
@@ -17,23 +21,34 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  ActionCell,
+  // ActionCell,
   EmptyState,
   PaginationContainer,
-  PaginationInfo,
   PaginationControls,
   PaginationButton,
   TableContainer,
+  SortIndicator,
+  DragHandleItem,
 } from './styles';
 
 interface ITableProps {
-  data: Record<string, unknown>[];
+  data: TableData;
 }
 
 export default function Table({ data }: ITableProps) {
+  const [dragState, setDragState] = useState<{
+    draggedIndex: number | null;
+    draggedOverIndex: number | null;
+  }>({
+    draggedIndex: null,
+    draggedOverIndex: null,
+  });
+  const dragItemRef = useRef<number | null>(null);
+
   const {
-    pageSize,
     currentPage,
+    sortColumn,
+    sortDirection,
   } = useUnit($tableState); 
   
   const columns = useUnit($columns);
@@ -51,6 +66,80 @@ export default function Table({ data }: ITableProps) {
     return String(value);
   };
 
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setPage(page);
+    }
+  };
+
+  const handleSort = (column: string) => {
+    let newDirection: SortDirection = 'asc';
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        newDirection = 'desc';
+      } else if (sortDirection === 'desc') {
+        newDirection = null;
+      }
+    }
+    setSort({ column, direction: newDirection });
+  };
+
+  const renderSortIndicator = (column: string) => {
+    if (sortColumn !== column) {
+      return <SortIndicator>↕</SortIndicator>;
+    }
+    if (sortDirection === 'asc') {
+      return <SortIndicator>↑</SortIndicator>;
+    }
+    if (sortDirection === 'desc') {
+      return <SortIndicator>↓</SortIndicator>;
+    }
+    return <SortIndicator>↕</SortIndicator>;
+  };
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    dragItemRef.current = index;
+    setDragState({ draggedIndex: index, draggedOverIndex: null });
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', '');
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    if (dragItemRef.current !== null && dragItemRef.current !== index) {
+      setDragState((prev) => ({
+        ...prev,
+        draggedOverIndex: index,
+      }));
+    }
+  };
+
+  const handleDragLeave = () => {
+    setDragState((prev) => ({
+      ...prev,
+      draggedOverIndex: null,
+    }));
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    
+    const dragIndex = dragItemRef.current;
+    if (dragIndex !== null && dragIndex !== dropIndex) {
+      reorderRows({ fromIndex: dragIndex, toIndex: dropIndex });
+    }
+    
+    dragItemRef.current = null;
+    setDragState({ draggedIndex: null, draggedOverIndex: null });
+  };
+
+  const handleDragEnd = () => {
+    dragItemRef.current = null;
+    setDragState({ draggedIndex: null, draggedOverIndex: null });
+  };
+
   useEffect(() => {
     setData(data);
   }, [data]);
@@ -62,24 +151,23 @@ export default function Table({ data }: ITableProps) {
       </TableContainer>
     );
   }
-  // @ts-ignore
-  const startItem = (currentPage - 1) * pageSize + 1;
-  // @ts-ignore
-  const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
     <TableContainer>
       <StyledTable>
         <TableHeader>
           <TableHeaderRow>
+            <TableHeaderCell style={{ width: '40px' }}>⋮⋮</TableHeaderCell>
             {columns.map((column) => (
-                <TableHeaderCell
-                  key={column}
-                >
-                  {column}
-                </TableHeaderCell>
-              ))}
-              <TableHeaderCell style={{ width: '100px' }}>Actions</TableHeaderCell>
+              <TableHeaderCell
+                key={column}
+                onClick={() => handleSort(column)}
+              >
+                {column}
+                {renderSortIndicator(column)}
+              </TableHeaderCell>
+            ))}
+            <TableHeaderCell style={{ width: '100px' }}>Actions</TableHeaderCell>
           </TableHeaderRow>
         </TableHeader>
         <TableBody>
@@ -93,12 +181,21 @@ export default function Table({ data }: ITableProps) {
               paginatedData.map((row, index) => (
                 <TableRow
                   key={index}
+                  draggable={true}
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  $isDragging={dragState.draggedIndex === index}
+                  $isDraggedOver={dragState.draggedOverIndex === index}
                 >
+                  <TableCell>
+                    <DragHandleItem>⋮⋮</DragHandleItem>
+                  </TableCell>
                   {columns.map((column) => (
                     <TableCell key={column}>{formatCellValue(row[column])}</TableCell>
                   ))}
-                  <ActionCell>
-                  </ActionCell>
                 </TableRow>
               ))
             )}
@@ -106,9 +203,6 @@ export default function Table({ data }: ITableProps) {
       </StyledTable>
       {totalItems > 0 && (
         <PaginationContainer>
-          <PaginationInfo>
-            Showing {startItem} to {endItem} of {totalItems} entries
-          </PaginationInfo>
           <PaginationControls>
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((page) => {
@@ -125,6 +219,7 @@ export default function Table({ data }: ITableProps) {
                     {showEllipsisBefore && <span>...</span>}
                     <PaginationButton
                       $active={currentPage === page}
+                      onClick={() => handlePageChange(page)}
                     >
                       {page}
                     </PaginationButton>
