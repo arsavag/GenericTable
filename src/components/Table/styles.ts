@@ -161,3 +161,16 @@ export const DragHandleItem = styled.div`
   }
 `;
 
+export const PageSizeSelect = styled.select`
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  
+  &:focus {
+    outline: none;
+    border-color: #4a90e2;
+  }
+`;

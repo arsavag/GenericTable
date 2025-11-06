@@ -5,6 +5,7 @@ import {
   setPage,
   setSort,
   reorderRows,
+  setPageSize,
   setSearchQuery,
   $columns,
   $totalItems,
@@ -32,6 +33,7 @@ import {
   DragHandleItem,
   ControlsContainer,
   SearchInput,
+  PageSizeSelect,
 } from './styles';
 
 interface ITableProps {
@@ -49,6 +51,7 @@ export default function Table({ data }: ITableProps) {
   const dragItemRef = useRef<number | null>(null);
 
   const {
+    pageSize,
     sortColumn,
     searchQuery,
     currentPage,
@@ -148,6 +151,9 @@ export default function Table({ data }: ITableProps) {
     setSearchQuery(e.target.value);
   };
 
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPageSize(Number(e.target.value));
+  };
   useEffect(() => {
     setData(data);
   }, [data]);
@@ -169,6 +175,13 @@ export default function Table({ data }: ITableProps) {
           value={searchQuery}
           onChange={handleSearchChange}
         />
+        <PageSizeSelect value={pageSize} onChange={handlePageSizeChange}>
+          <option value={5}>5 per page</option>
+          <option value={10}>10 per page</option>
+          <option value={25}>25 per page</option>
+          <option value={50}>50 per page</option>
+          <option value={100}>100 per page</option>
+        </PageSizeSelect>
       </ControlsContainer>
       <StyledTable>
         <TableHeader>
