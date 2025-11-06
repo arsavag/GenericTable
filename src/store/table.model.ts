@@ -1,26 +1,25 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { createStore, createEvent } from 'effector';
 
 export type TableData = Record<string, unknown>[];
 export type SortDirection = 'asc' | 'desc' | null;
 export interface TableState {
-    data: TableData;
-    currentPage?: number;
-    pageSize?: number;
-    filteredData?: TableData;
-    searchQuery?: string;
-    sortColumn: string | null;
-    sortDirection: SortDirection;
+  data: TableData;
+  filteredData: TableData;
+  searchQuery: string;
+  sortColumn: string | null;
+  sortDirection: SortDirection;
+  currentPage: number
+  pageSize: number;
 }
 
-export const initialState : TableState = {
-    data: [],
-    currentPage: 1,
-    pageSize: 10,
-    filteredData: [],
-    searchQuery: '',
-    sortColumn: null,
-    sortDirection: null,  
+const initialState: TableState = {
+  data: [],
+  filteredData: [],
+  searchQuery: '',
+  sortColumn: null,
+  sortDirection: null,
+  currentPage: 1,
+  pageSize: 10,
 };
 
 export const $tableState = createStore<TableState>(initialState);
@@ -78,7 +77,6 @@ const sortData = (data: TableData, column: string, direction: SortDirection): Ta
 
 $tableState
   .on(setData, (state, data) => {
-      // @ts-expect-error
     const filtered = searchData(data, state.searchQuery);
     const sorted = state.sortColumn && state.sortDirection
       ? sortData(filtered, state.sortColumn, state.sortDirection)
@@ -106,7 +104,6 @@ $tableState
   })
   .on(setSort, (state, { column, direction }) => {
     const sorted = direction
-      // @ts-expect-error
       ? sortData(state.filteredData, column, direction)
       : state.filteredData;
     
@@ -131,20 +128,14 @@ $tableState
 export const $columns = $tableState.map(state => state.data.length > 0 ? getAllKeys(state.data) : []);
 
 export const $paginatedData = $tableState.map((state) => {
-      // @ts-expect-error
   const start = (state.currentPage - 1) * state.pageSize;
-      // @ts-expect-error
   const end = start + state.pageSize;
-      // @ts-expect-error
   return state.filteredData.slice(start, end);
 });
 
 export const $totalPages = $tableState.map((state) =>
-      // @ts-expect-error
-
   Math.ceil(state.filteredData.length / state.pageSize) || 1
 );
-      // @ts-expect-error
 
 export const $totalItems = $tableState.map((state) => state.filteredData.length);
 
